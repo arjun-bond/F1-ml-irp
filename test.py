@@ -1,5 +1,6 @@
 import pandas as pd
+df = pd.read_csv('f1_data.csv')
 
-test = pd.Series([1, 2, 3, 1, 5])
-print(test == 1)
-print((test == 1).astype(int))
+
+grouped = df.sort_values(by=['RoundNumber']).groupby('DriverNumber'['Position'].shift(1))
+print(grouped.rolling(5).mean())
