@@ -6,7 +6,7 @@ fastf1.Cache.enable_cache('/Users/arjunkashyap/PycharmProjects/f1-irp/cache')
 
 
 # get all data for races and qualifying in 2022-2025 seasons
-for year in range(2022,2026):
+for year in range(2024,2026):
     season = fastf1.get_event_schedule(year)
     print(season)
     for index, row in season.iterrows():
