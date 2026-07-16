@@ -7,7 +7,7 @@ fastf1.Cache.enable_cache('/Users/arjunkashyap/PycharmProjects/f1-irp/cache')
 all_races = []
 
 # Fetches data from cache / internet and adds podium indicator as well as name of GP and year
-for year in range(2022,2025):
+for year in range(2018,2026):
     season = fastf1.get_event_schedule(year)
     for index, row in season.iterrows():
         if row['EventFormat'] == 'testing':
@@ -17,7 +17,6 @@ for year in range(2022,2025):
         quali = event.get_qualifying()
         race.load()
         quali.load()
-
         #account for weather
         avg_air_temp = race.weather_data['AirTemp'].mean()
         avg_humidity = race.weather_data['Humidity'].mean()
@@ -26,7 +25,7 @@ for year in range(2022,2025):
 
 
         # assimilate quali and race results
-        quali_slim = quali.results[['DriverNumber', 'Position']].rename(columns={'Position': 'QualiPosition'})
+        quali_slim = quali.results[['DriverNumber', 'Position','Q1','Q2','Q3']].rename(columns={'Position': 'QualiPosition'})
         merged = pd.merge(race.results, quali_slim, on='DriverNumber') # make a df with quali and race pos
         merged['Podium'] = (merged['Position'] <= 3).astype(int) # Create column to indicate podium positions
         merged['RoundNumber'] = (row['RoundNumber'])
@@ -37,7 +36,15 @@ for year in range(2022,2025):
         merged['Rained'] = hasRained
 
 
+
         all_races.append(merged)
+columns_to_keep = [
+    'DriverNumber', 'Year', 'EventName', 'TeamId', 'GridPosition',
+    'QualiPosition', 'RoundNumber', 'Position', 'Q1_y', 'Q2_y', 'Q3_y',
+    'AirTemp', 'Humidity', 'Rained', 'Podium'
+]
 
 full_dataset = pd.concat(all_races, ignore_index=True)
-full_dataset.to_csv('f1_data.csv', index=False)
+
+full_dataset_slim = full_dataset[columns_to_keep]
+full_dataset_slim.to_csv('f1_data.csv', index=False)
