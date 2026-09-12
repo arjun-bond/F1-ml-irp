@@ -21,4 +21,11 @@ df_sorted['QualiTime'] = df_sorted[['Q1_y','Q2_y','Q3_y']].min(axis=1)
 df_sorted['PolePositionTime'] = df_sorted.groupby(['EventName'])['QualiTime'].transform('min')
 df_sorted['QualiDelta'] = ((df_sorted['QualiTime'] - df_sorted['PolePositionTime'])/df_sorted['PolePositionTime']) * 100
 
+# Drivers' championship standing going into each race (for the historical baseline)
+points_map = {1:25, 2:18, 3:15, 4:12, 5:10, 6:8, 7:6, 8:4, 9:2, 10:1}
+df_sorted['RacePoints'] = df_sorted['Position'].map(points_map).fillna(0)
+df_sorted['CumulativePoints'] = df_sorted.groupby(['DriverNumber', 'Year'])['RacePoints'].cumsum()
+df_sorted['StandingsPointsBeforeRace'] = df_sorted.groupby(['DriverNumber', 'Year'])['CumulativePoints'].shift(1).fillna(0)
+df_sorted['ChampionshipRank'] = df_sorted.groupby(['Year', 'RoundNumber'])['StandingsPointsBeforeRace'].rank(ascending=False, method='first')
+
 df_sorted.to_csv('f1_data_sorted.csv', index=False)
